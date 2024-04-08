@@ -20,7 +20,7 @@ public class ExchangeController {
         this.exchangeService = exchangeService;
     }
 
-    @GetMapping("/fetch-one")
+    @GetMapping("/fetch-one")//localhost:8080/api/v1/foreign-exchange/fetch-one?from=USD&to=EUR
     public ResponseEntity<ExchangeRate> getExchangeRate(@RequestParam("from") String from, @RequestParam("to") String to) {
 
         ExchangeRate exchangeRate = exchangeService.getExchangeRate(from, to);
