@@ -16,12 +16,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
-import java.util.Currency;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -105,11 +103,11 @@ public class ExchangeServiceTest {
         @Test
         void shouldReturnListOfCurrencyConvertResponses() {
             // Given
-            List<CurrencyConvert> mockCurrencyConvertList = List.of(
+            List<CurrencyConvert> currencyConvertList = List.of(
                     new CurrencyConvert(),
                     new CurrencyConvert()
             );
-            when(currencyConvertRepository.findAll()).thenReturn(mockCurrencyConvertList);
+            when(currencyConvertRepository.findAll()).thenReturn(currencyConvertList);
 
             // When
             List<CurrencyConvertResponse> actualResponseList = exchangeService.findAllCurrencyConvert();
@@ -148,4 +146,54 @@ public class ExchangeServiceTest {
             assertThrows(ExchangeDomainException.class, () -> exchangeService.findById(invalidId));
         }
     }
+
+    @Nested
+    @DisplayName("Tests for method sortByField()")
+    class SortByField {
+
+
+        @Test
+        void givenValidField_thenSortTheCurrencyTransactions() {
+
+            // given
+            String field = "id";
+            List<CurrencyConvert> currencyConvertList = List.of(
+                    new CurrencyConvert(),
+                    new CurrencyConvert()
+            );
+            when(currencyConvertRepository.findAll(Sort.by(field))).thenReturn(currencyConvertList);
+
+            // when
+            List<CurrencyConvertResponse> responses = exchangeService.sortByField(field);
+
+            // then
+            assertThat(responses).isNotNull();
+        }
+
+    }
+
+    @Nested
+    @DisplayName("Tests for method findAll()")
+    class FindAll {
+
+        @Test
+        void givenValidPageable_thenFindAll() {
+            // given
+            Pageable pageable = PageRequest.of(0, 10);
+            List<CurrencyConvert> currencyConvertList = Arrays.asList(
+                    new CurrencyConvert(),
+                    new CurrencyConvert()
+            );
+            Page<CurrencyConvert> mockPage = new PageImpl<>(currencyConvertList, pageable, currencyConvertList.size());
+            when(currencyConvertRepository.findAll(pageable)).thenReturn(mockPage);
+
+            // when
+            Page<CurrencyConvertResponse> result = exchangeService.findAll(pageable);
+
+            // then
+            assertThat(result).isNotNull();
+        }
+
+    }
+
 }

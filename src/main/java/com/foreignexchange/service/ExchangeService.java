@@ -35,11 +35,22 @@ public class ExchangeService {
         this.currencyConvertRepository = currencyConvertRepository;
     }
 
+    /**
+     *
+     * @param from currency
+     * @param to currency
+     * @return exchange rate
+     */
     public ExchangeRate getExchangeRate(Currency from, Currency to) {
 
         return fastForexClient.fetchOne(from, to, fastForexProperties.getApiKey());
     }
 
+    /**
+     *
+     * @param currencyConvertRequest - Custom object
+     * @return convert currency
+     */
     public CurrencyConvertResponse convertCurrency(CurrencyConvertRequest currencyConvertRequest) {
 
         Currency from = currencyConvertRequest.getFrom();
@@ -60,6 +71,10 @@ public class ExchangeService {
         return DtoMapper.mapToCurrencyConvertResponse(persistedCurrencyConvert);
     }
 
+    /**
+     *
+     * @return all currency convert
+     */
     public List<CurrencyConvertResponse> findAllCurrencyConvert() {
 
         List<CurrencyConvert> all = currencyConvertRepository.findAll();
@@ -71,18 +86,11 @@ public class ExchangeService {
         return response;
     }
 
-    private CurrencyConvertResponse mapToCurrencyResponse(CurrencyConvert e) {
-        CurrencyConvertResponse build = CurrencyConvertResponse.builder()
-                .transactionId(e.getId())
-                .sourceCurrency(e.getSourceCurrency())
-                .targetCurrency(e.getTargetCurrency())
-                .sourceAmount(e.getSourceAmount())
-                .targetAmount(e.getTargetAmount())
-                .rate(e.getRate())
-                .build();
-        return build;
-    }
-
+    /**
+     *
+     * @param id
+     * @return currency convert by id
+     */
     public CurrencyConvertResponse findById(UUID id) {
 
         Optional<CurrencyConvert> byId = Optional.ofNullable(currencyConvertRepository.findById(id)
@@ -90,6 +98,11 @@ public class ExchangeService {
         return mapToCurrencyResponse(byId.get());
     }
 
+    /**
+     *
+     * @param field
+     * @return sort all currency convert by field name
+     */
     public List<CurrencyConvertResponse> sortByField(String field) {
 
         List<CurrencyConvertResponse> response = new ArrayList<>();
@@ -100,10 +113,32 @@ public class ExchangeService {
         return response;
     }
 
+    /**
+     *
+     * @param pageable
+     * @return find all - Pageable
+     */
     public Page<CurrencyConvertResponse> findAll(Pageable pageable) {
 
         Page<CurrencyConvert> all = currencyConvertRepository.findAll(pageable);
 
         return all.map(this::mapToCurrencyResponse);
+    }
+
+    /**
+     *
+     * @param e
+     * @return mapping currency convert to currency convert response
+     */
+    private CurrencyConvertResponse mapToCurrencyResponse(CurrencyConvert e) {
+        CurrencyConvertResponse build = CurrencyConvertResponse.builder()
+                .transactionId(e.getId())
+                .sourceCurrency(e.getSourceCurrency())
+                .targetCurrency(e.getTargetCurrency())
+                .sourceAmount(e.getSourceAmount())
+                .targetAmount(e.getTargetAmount())
+                .rate(e.getRate())
+                .build();
+        return build;
     }
 }
